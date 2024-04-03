@@ -230,8 +230,6 @@ stop()-> gen_server:stop(?SERVER).
 
 init([]) ->
     
-    
-%    ?LOG_NOTICE("Server started ",[?MODULE]),
     {ok, #state{
 	    repo_dir=?RepoDir,
 	    git_path=?RepoGit
@@ -425,19 +423,21 @@ handle_cast(UnMatchedSignal, State) ->
 handle_info(timeout, State) ->
  %   io:format("timeout ~p~n",[{?MODULE,?LINE}]),
   
-      ok=initial_trade_resources(),
+    initial_trade_resources(),
     RepoDir=State#state.repo_dir,
     GitPath=State#state.git_path,
-    try lib_deployment:init(RepoDir,GitPath) of
-	ok->
-	    ok;
-	{error,Reason}->
-	    {error,Reason}
-    catch
-	Event:Reason:Stacktrace ->
-	    {Event,Reason,Stacktrace,?MODULE,?LINE}
-    end,
+    Result=try lib_deployment:init(RepoDir,GitPath) of
+	       ok->
+		   ok;
+	       {error,Reason}->
+		   {error,Reason}
+	   catch
+	       Event:Reason:Stacktrace ->
+		   {Event,Reason,Stacktrace,?MODULE,?LINE}
+	   end,
     spawn(fun()->lib_deployment:timer_to_call_update(?Interval) end),
+    ?LOG_NOTICE("Result init",[Result]),
+    ?LOG_NOTICE("Server started ",[?MODULE]),
     {noreply, State};
 
 
