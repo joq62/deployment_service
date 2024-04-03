@@ -42,12 +42,12 @@ timer_to_call_update(Interval)->
 %%--------------------------------------------------------------------
 update(RepoDir,GitPath)->
     io:format(" ~p~n",[{?MODULE,?FUNCTION_NAME,?LINE}]),
-    case rd:call(git_handler,is_repo_updated,[RepoDir],5000) of
+    case git_handler:is_repo_updated(RepoDir) of
 	{error,["RepoDir doesnt exists, need to clone"]}->
-	    ok=rd:call(git_handler,clone,[RepoDir,GitPath],5000);
+	    ok=git_handler:clone(RepoDir,GitPath);
 	false ->
 	    io:format(" ~p~n",[{?MODULE,?FUNCTION_NAME,?LINE}]),
-	    ok=rd:call(git_handler,update_repo,[RepoDir],5000);
+	    ok=git_handler:update_repo(RepoDir);
 	true ->
 	    ok
     end,
@@ -59,11 +59,11 @@ update(RepoDir,GitPath)->
 %% @end
 %%--------------------------------------------------------------------
 init(RepoDir,GitPath)->
-    case rd:call(git_handler,is_repo_updated,[RepoDir],5000) of
+    case git_handler:is_repo_updated(RepoDir) of
 	{error,["RepoDir doesnt exists, need to clone"]}->
-	    ok=rd:call(git_handler,clone,[RepoDir,GitPath],5000);
+	    ok=git_handler:clone(RepoDir,GitPath);
 	false ->
-	    ok=rd:call(git_handler,update_repo,[RepoDir],5000);
+	    ok=git_handler:update_repo(RepoDir);
 	true ->
 	    ok
     end,
